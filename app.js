@@ -223,13 +223,24 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ personality: bot.personality, messages: history })
     });
-    const data = await res.json();
-    hideTyping();
+    const contentType = res.headers.get('content-type') || '';
 
-    if (!res.ok) {
-      toast(data.error || 'The AI did not respond.');
-      return;
-    }
+let data;
+
+if (contentType.includes('application/json')) {
+    data = await res.json();
+} else {
+    const text = await res.text();
+    throw new Error(
+        `Server returned ${res.status}: ${text.slice(0, 300)}`
+    );
+}
+
+hideTyping();
+
+if (!res.ok) {
+    throw new Error(data.error || `Server returned ${res.status}`);
+                         }
 
     const reply = data.reply || '...';
     appendMessageBubble('bot', reply);
