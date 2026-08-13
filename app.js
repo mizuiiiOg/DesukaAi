@@ -248,10 +248,13 @@ if (!res.ok) {
     upsertBot(bot);
 
     if (bot.hasVoice) speak(bot, reply);
-  } catch (err) {
+} catch (err) {
     hideTyping();
-    toast('Connection error. Try again.');
-  }
+
+    console.error('CHAT ERROR:', err);
+
+    toast(err.message || 'Connection error. Try again.');
+}
 }
 
 async function speak(bot, text) {
